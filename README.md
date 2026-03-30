@@ -1,22 +1,17 @@
-# Week01 Text API
+# AI Learning Bootcamp
 
-## 简介
+This repository is the root workspace for my AI learning process.
 
-第 1 周基准项目，用于打通 FastAPI + PostgreSQL + Docker + MiniMax API 的最小闭环。
+## Structure
 
-## 启动方式
+- `00-docs/`: bootcamp documentation and execution guides
+- `01-templates/`: reusable templates
+- `02-weekly-reports/`: weekly reports
+- `03-postmortems/`: retrospectives and postmortems
+- `04-projects/`: AI application projects
+- `05-assets/`: supporting assets
+- `06-archive/`: archived materials
 
-1. 创建虚拟环境
-2. 安装依赖
-3. 启动 Docker PostgreSQL
-4. 启动 FastAPI
+## Current Projects
 
-## 当前接口
-
-- GET /health
-
-## 后续计划
-
-- 接入 MiniMax API
-- 增加文本处理接口
-- 增加测试和日志
+- `04-projects/week01-text-api/`: FastAPI + PostgreSQL + Docker + MiniMax baseline project
