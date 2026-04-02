@@ -1,5 +1,7 @@
 # AI 开发小白训练营
 
+`中文` | [English](./README.en.md)
+
 这是一个面向 AI 开发初学者的开源训练仓库。
 
 它不只是“学习资料合集”，而是一个可直接执行的训练系统。目标是让使用者在一套统一方法下，逐步做到这些事：
@@ -87,3 +89,5 @@ ai-learning-bootcamp/
 - 所有学习都要沉淀成代码、文档和证据
 
 详细文档索引见 [00-docs/README.md](./00-docs/README.md)。
+
+英文入口见 [README.en.md](./README.en.md)。
