@@ -37,11 +37,11 @@
 
 第一次使用这个仓库时，按下面顺序：
 
-1. 阅读 [00-docs/00-导航/00-项目定位与使用方式.md](/e:/ai-learning-bootcamp/00-docs/00-导航/00-项目定位与使用方式.md)
-2. 阅读 [00-docs/00-导航/01-新手启动路径.md](/e:/ai-learning-bootcamp/00-docs/00-导航/01-新手启动路径.md)
-3. 进入 [00-docs/01-训练主线/00-学习总览.md](/e:/ai-learning-bootcamp/00-docs/01-训练主线/00-学习总览.md)
-4. 按 [00-docs/01-训练主线/07-详细可执行的环境部署指导.md](/e:/ai-learning-bootcamp/00-docs/01-训练主线/07-详细可执行的环境部署指导.md) 完成环境
-5. 使用 [01-templates](/e:/ai-learning-bootcamp/01-templates) 中的模板开始执行日报、周报和项目文档
+1. 阅读 [00-docs/00-导航/00-项目定位与使用方式.md](./00-docs/00-导航/00-项目定位与使用方式.md)
+2. 阅读 [00-docs/00-导航/01-新手启动路径.md](./00-docs/00-导航/01-新手启动路径.md)
+3. 进入 [00-docs/01-训练主线/00-学习总览.md](./00-docs/01-训练主线/00-学习总览.md)
+4. 按 [00-docs/01-训练主线/07-详细可执行的环境部署指导.md](./00-docs/01-训练主线/07-详细可执行的环境部署指导.md) 完成环境
+5. 使用 [01-templates](./01-templates/) 中的模板开始执行日报、周报和项目文档
 
 ## 仓库结构
 
@@ -77,7 +77,7 @@ ai-learning-bootcamp/
 
 ## 当前示例项目
 
-- [04-projects/week01-text-api/README.md](/e:/ai-learning-bootcamp/04-projects/week01-text-api/README.md)
+- [04-projects/week01-text-api/README.md](./04-projects/week01-text-api/README.md)
 
 ## 核心原则
 
@@ -86,4 +86,4 @@ ai-learning-bootcamp/
 - AI 是协作工具，不是替代判断
 - 所有学习都要沉淀成代码、文档和证据
 
-详细文档索引见 [00-docs/README.md](/e:/ai-learning-bootcamp/00-docs/README.md)。
+详细文档索引见 [00-docs/README.md](./00-docs/README.md)。
