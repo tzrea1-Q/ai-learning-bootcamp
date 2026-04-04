@@ -1,0 +1,12 @@
+[
+  {
+    "input": "FastAPI 可以更快做 API。",
+    "before": "使用 FastAPI 可以更快速地开发 API。",
+    "after": "FastAPI 能让 API 开发更高效。"
+  },
+  {
+    "input": "把日志、测试、README 和失败复盘一起补齐，才能说明这个 AI 接口真正进入了工程链路。",
+    "before": "只有日志、测试、README 和失败复盘全部完善，才能证明这个 AI 接口真正进入了工程化的流程。",
+    "after": "将日志、测试、README 以及失败复盘全部补齐，才能说明该 AI 接口已真正进入工程链路。"
+  }
+]
