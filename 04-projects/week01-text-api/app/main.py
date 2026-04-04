@@ -19,6 +19,7 @@ from app.minimax_client import minimax_chat
 
 # 当前项目统一使用的模型名。后续如果切换模型，优先改这里，避免散落在各个接口里。
 MODEL_NAME = "MiniMax-M2.7"
+MAX_TEXT_LENGTH = 4000
 
 # 某些模型响应会把推理过程包在 <think>...</think> 中。
 # 对 API 客户端来说，这部分通常不是最终想要暴露的内容，因此在返回前清理掉。
@@ -35,7 +36,7 @@ class TextTaskRequest(BaseModel):
     所以先复用同一个输入模型，后续增加 rewrite 等接口时也可以继续沿用。
     """
 
-    text: str = Field(..., min_length=1, description="需要处理的原始文本")
+    text: str = Field(..., min_length=1, description=f"需要处理的原始文本，当前最大长度为 {MAX_TEXT_LENGTH} 个字符")
 
     @field_validator("text")
     @classmethod
@@ -44,6 +45,8 @@ class TextTaskRequest(BaseModel):
         normalized = value.strip()
         if not normalized:
             raise ValueError("text must not be empty")
+        if len(normalized) > MAX_TEXT_LENGTH:
+            raise ValueError(f"text must be at most {MAX_TEXT_LENGTH} characters")
         return normalized
 
 

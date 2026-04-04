@@ -134,6 +134,15 @@ def test_text_endpoints_reject_blank_text(client: TestClient) -> None:
     assert response.status_code == 422
 
 
+def test_text_endpoints_reject_overlong_text(client: TestClient) -> None:
+    """确认超长文本会被输入边界约束拦下。"""
+
+    response = client.post("/summarize", json={"text": "a" * (main.MAX_TEXT_LENGTH + 1)})
+
+    assert response.status_code == 422
+    assert "at most" in response.text
+
+
 def test_text_endpoints_surface_upstream_errors(monkeypatch, client: TestClient) -> None:
     """确认上游配置错误会被转换成统一的 500 错误结构。"""
 
