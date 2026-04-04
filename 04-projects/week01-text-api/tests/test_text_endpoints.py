@@ -1,12 +1,15 @@
 """文本处理接口测试。
 
-这些测试覆盖 5 类核心场景：
+这些测试覆盖 6 类核心场景：
 1. 正常总结；
 2. 正常提取要点；
 3. 正常改写；
 4. 非法输入校验；
-5. 上游配置错误向外暴露的方式。
+5. 统一错误响应格式；
+6. 上游配置错误和上游异常的暴露方式。
 """
+
+from requests import RequestException
 
 from fastapi.testclient import TestClient
 
@@ -76,6 +79,8 @@ def test_rewrite_returns_polished_text(monkeypatch, client: TestClient) -> None:
     def fake_minimax_chat(payload: dict) -> dict:
         # 这里检查 prompt 已切到“改写”任务，避免错误复用其他接口的模板。
         assert "改写下面内容" in payload["messages"][1]["content"]
+        assert "不要添加标题" in payload["messages"][1]["content"]
+        assert "长度尽量控制在原文的 0.8 到 1.3 倍" in payload["messages"][1]["content"]
         return {
             "choices": [
                 {
@@ -98,6 +103,28 @@ def test_rewrite_returns_polished_text(monkeypatch, client: TestClient) -> None:
     }
 
 
+def test_rewrite_strips_heading_and_leading_label(monkeypatch, client: TestClient) -> None:
+    """确认 rewrite 输出会去掉自动标题和“改写后”之类的前缀。"""
+
+    def fake_minimax_chat(payload: dict) -> dict:
+        return {
+            "choices": [
+                {
+                    "message": {
+                        "content": "改写建议\n改写后：这个功能不要一开始做得太复杂，先把最小闭环跑通。",
+                    }
+                }
+            ]
+        }
+
+    monkeypatch.setattr(main, "minimax_chat", fake_minimax_chat)
+
+    response = client.post("/rewrite", json={"text": "这个功能先别做太复杂，先把最小闭环跑通。"})
+
+    assert response.status_code == 200
+    assert response.json()["result"] == "这个功能不要一开始做得太复杂，先把最小闭环跑通。"
+
+
 def test_text_endpoints_reject_blank_text(client: TestClient) -> None:
     """确认空白文本会被 Pydantic 校验拦下。"""
 
@@ -108,7 +135,7 @@ def test_text_endpoints_reject_blank_text(client: TestClient) -> None:
 
 
 def test_text_endpoints_surface_upstream_errors(monkeypatch, client: TestClient) -> None:
-    """确认上游配置错误会被转换成 500，而不是默默吞掉。"""
+    """确认上游配置错误会被转换成统一的 500 错误结构。"""
 
     def fake_minimax_chat(payload: dict) -> dict:
         # 模拟本地配置缺失等非网络类错误。
@@ -119,4 +146,44 @@ def test_text_endpoints_surface_upstream_errors(monkeypatch, client: TestClient)
     response = client.post("/key-points", json={"text": "需要提炼的信息"})
 
     assert response.status_code == 500
-    assert response.json() == {"detail": "MINIMAX_API_KEY is not set"}
+    assert response.json() == {
+        "code": "SERVER_MISCONFIGURED",
+        "message": "Local service configuration is invalid",
+        "detail": "MINIMAX_API_KEY is not set",
+    }
+
+
+def test_text_endpoints_return_unified_502_on_request_failure(monkeypatch, client: TestClient) -> None:
+    """确认 requests 层异常会被转换成统一的 502 错误结构。"""
+
+    def fake_minimax_chat(payload: dict) -> dict:
+        raise RequestException("request timed out")
+
+    monkeypatch.setattr(main, "minimax_chat", fake_minimax_chat)
+
+    response = client.post("/summarize", json={"text": "需要总结的信息"})
+
+    assert response.status_code == 502
+    assert response.json() == {
+        "code": "UPSTREAM_REQUEST_FAILED",
+        "message": "MiniMax request failed",
+        "detail": "request timed out",
+    }
+
+
+def test_text_endpoints_return_unified_502_on_invalid_response(monkeypatch, client: TestClient) -> None:
+    """确认上游返回结构异常时会走统一的 502 错误结构。"""
+
+    def fake_minimax_chat(payload: dict) -> dict:
+        return {"choices": []}
+
+    monkeypatch.setattr(main, "minimax_chat", fake_minimax_chat)
+
+    response = client.post("/key-points", json={"text": "需要提炼的信息"})
+
+    assert response.status_code == 502
+    assert response.json() == {
+        "code": "UPSTREAM_INVALID_RESPONSE",
+        "message": "MiniMax returned an unexpected response",
+        "detail": "choices[0].message.content is missing or malformed",
+    }
