@@ -11,6 +11,12 @@
 - 想确认当前限制和下一步：直接看 `docs/05-已知问题与后续计划.md`
 - 想回看测试、联调和环境验证：看 `docs/traces/README.md`
 
+## 给 Agent 的环境配置指引
+
+如果你想让 Agent 直接帮你完成环境配置，可以把下面这段话发给它：
+
+`请先阅读这个环境配置文档，并按文档完成 text-api 的环境配置：https://github.com/tzrea1-Q/ai-learning-bootcamp/blob/main/04-projects/text-api/ENVIRONMENT.md 。完成后告诉我还需要我补哪些真实配置。`
+
 ## 当前范围
 
 - `GET /health`
