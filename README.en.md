@@ -1,91 +1,174 @@
-# AI Development Bootcamp for Beginners
+﻿# AI Development Bootcamp for Beginners
 
 [中文](./README.md) | `English`
 
-This repository is an open-source training system for beginners who want to learn AI application development in a practical, engineering-focused way.
+An open-source training repository that turns AI learning, project delivery, engineering evidence, and public writing into one workflow.
 
-It is not just a collection of notes. It is designed to help learners gradually build the ability to:
+This is not just a note dump. It is an execution system: you are expected to build runnable projects, then turn each iteration into READMEs, solution docs, test traces, weekly reports, blog posts, and postmortems.
 
-- set up an AI development environment
-- plan daily learning and execution
-- write daily reports and weekly reports
-- turn project work into blog posts and public output
-- build and deliver AI projects
-- write solution docs, READMEs, retrospectives, and case studies
+## What This Repository Is
 
-## Who This Is For
+- Built for people with some `Python / Web` background who want to enter AI application development systematically
+- Focused on delivery discipline: ship first, expand later
+- Designed to produce both runnable projects and public-facing portfolio assets
+- Structured to support three things at once: training, project execution, and blog serialization
 
-This repository is a good fit for people who:
+## Current Status
 
-- are new to AI development and want a structured path
-- know some Python or web development but lack engineering discipline
-- can use AI tools but cannot yet integrate them into a delivery workflow
-- want to turn their learning process into a public portfolio
+As of `2026-04-05`, this repository has moved beyond a training-notes repo and become an early open-source project with a real example project and output pipeline.
 
-It is not a good fit for someone with zero programming background who only wants conceptual overviews.
+What is already in place:
 
-## What You Will Build
+- Core documentation for navigation, training track, execution system, output system, and project system
+- Reusable templates for daily reports, weekly reports, blog posts, READMEs, solution docs, and postmortems
+- The first example project: [`text-api`](./04-projects/text-api/README.md)
+- A week 1 engineering report, a first blog draft, a week 2 delivery plan, and postmortem records
+- A `docs/traces/` workflow for preserving tests, debugging, regressions, and environment verification as evidence
 
-By following this training system, you should gradually accumulate:
+What is next:
 
-1. runnable AI projects
-2. daily and weekly execution records
-3. blog drafts and technical articles
-4. solution docs and architecture notes
-5. README, case study, and postmortem documents
-6. portfolio-ready assets
+- fuller request-level logging
+- explicit timeout / retry behavior
+- GitHub Actions running successfully in the remote repo
+- more stable Docker / PostgreSQL local development support
 
-## Start Here
+## What You Can Reuse Right Now
 
-If this is your first time in the repository, follow this order:
+- Runnable example code: a `FastAPI + OpenAI-compatible Chat Completions API` text-processing baseline, with MiniMax as the current default example upstream
+- Engineering docs: README, API contract, local debugging guide, known issues, and next steps
+- Execution records: daily reports, weekly reports, and planning docs
+- Public-output assets: blog drafts, screenshots, demo scripts, and postmortems
+- Trace records: verification files that preserve what was tested and why
 
-1. Read [00-docs/en/00-navigation/00-what-this-project-is.md](./00-docs/en/00-navigation/00-what-this-project-is.md)
-2. Read [00-docs/en/00-navigation/01-getting-started.md](./00-docs/en/00-navigation/01-getting-started.md)
-3. Continue with [00-docs/en/01-training-track/00-learning-overview.md](./00-docs/en/01-training-track/00-learning-overview.md)
-4. Set up your environment with [00-docs/en/01-training-track/07-environment-setup-guide.md](./00-docs/en/01-training-track/07-environment-setup-guide.md)
-5. Use the English templates in [01-templates/en](./01-templates/en/)
+If your goal is to build an open-source project that can also be written about in public, the key idea here is simple: every iteration should leave behind reusable assets, not just code.
+
+## Best Entry Points
+
+If this is your first visit, start here:
+
+1. Repository orientation
+   - [00-docs/en/README.md](./00-docs/en/README.md)
+   - [00-docs/en/00-navigation/00-what-this-project-is.md](./00-docs/en/00-navigation/00-what-this-project-is.md)
+   - [00-docs/en/00-navigation/01-getting-started.md](./00-docs/en/00-navigation/01-getting-started.md)
+2. The first real project
+   - [04-projects/text-api/README.md](./04-projects/text-api/README.md)
+   - [04-projects/text-api/docs/README.md](./04-projects/text-api/docs/README.md)
+3. The latest delivery and planning documents
+   - [03-weekly-reports/week-01-report.md](./03-weekly-reports/week-01-report.md)
+   - [06-solution-docs/week02-text-api-最小可交付拆解.md](./06-solution-docs/week02-text-api-最小可交付拆解.md)
+4. Public-output material
+   - [05-blog-posts/02-专栏总览/2026-04-把-ai-开发练成真本事.md](./05-blog-posts/02-专栏总览/2026-04-把-ai-开发练成真本事.md)
+   - [05-blog-posts/04-草稿箱/2026-04-text-api-从能跑到像样的工程化收口.md](./05-blog-posts/04-草稿箱/2026-04-text-api-从能跑到像样的工程化收口.md)
+   - [07-postmortems/2026-04-minimax-think-output-leak.md](./07-postmortems/2026-04-minimax-think-output-leak.md)
+
+Most of the latest project-delivery artifacts are currently written in Chinese first, then selectively mirrored into English.
+
+## Current Example Project
+
+### `text-api`
+
+This is the first baseline project in the repository. Its job is not to be large. Its job is to be a small AI API project that is actually runnable, testable, and documentable.
+
+Current deliverables:
+
+- `GET /health`
+- `POST /summarize`
+- `POST /key-points`
+- `POST /rewrite`
+- `pytest` test coverage
+- unified `500 / 502` error structure
+- a minimal `request_id` error path
+- Docker PostgreSQL verification records
+
+Related links:
+
+- Project README: [04-projects/text-api/README.md](./04-projects/text-api/README.md)
+- Project docs index: [04-projects/text-api/docs/README.md](./04-projects/text-api/docs/README.md)
+- Week 1 report: [03-weekly-reports/week-01-report.md](./03-weekly-reports/week-01-report.md)
+- Blog draft: [05-blog-posts/04-草稿箱/2026-04-text-api-从能跑到像样的工程化收口.md](./05-blog-posts/04-草稿箱/2026-04-text-api-从能跑到像样的工程化收口.md)
 
 ## Repository Structure
 
 ```text
 ai-learning-bootcamp/
-├─ 00-docs/               # methodology, navigation, training track, execution, output, project system
-├─ 01-templates/          # reusable templates
+├─ 00-docs/               # navigation, training track, execution, output, project system
+├─ 01-templates/          # reusable templates for reports, blog posts, READMEs, docs
 ├─ 02-daily-reports/      # daily execution records
 ├─ 03-weekly-reports/     # weekly reports
-├─ 04-projects/           # actual projects
+├─ 04-projects/           # project code and project-level docs
 ├─ 05-blog-posts/         # blog drafts and published articles
-├─ 06-solution-docs/      # solution docs and architecture notes
-├─ 07-postmortems/        # failure reviews
-├─ 08-assets/             # screenshots, videos, diagrams, demos
-└─ 09-archive/            # archived content
+├─ 06-solution-docs/      # planning docs, solution docs, design notes
+├─ 07-postmortems/        # failure reviews and postmortems
+├─ 08-assets/             # screenshots, demo scripts, recordings
+└─ 09-archive/            # archived materials
 ```
 
-## Recommended Execution Loop
+## How This Repository Works
 
-Every day:
+The main difference between this repository and a typical learning repo is that every iteration is expected to leave behind a full evidence chain.
 
-- write the daily plan first
-- build, test, and record problems
-- complete the daily report at night
+A minimal closed loop here includes:
 
-Every week:
+- code and runnable results
+- tests and verification records
+- README, solution docs, and debugging notes
+- weekly reports, blog drafts, and postmortems
+- screenshots, scripts, or other reusable showcase assets
 
-- turn daily reports into a weekly report
-- produce at least one blog draft
-- update a project README or solution document
-- record a demo or collect screenshots
-- write at least one postmortem or risk note
+In other words, engineering delivery and content output are treated as part of the same workflow.
 
-## Example Project
+## Recommended Reading Order
 
-- [04-projects/week01-text-api/README.md](./04-projects/week01-text-api/README.md)
+If you want to use this repository as your own training system:
+
+1. Start with project orientation and the getting-started path
+2. Continue with the training-track and environment docs
+3. Use `01-templates/` to start your own daily reports, weekly reports, and project docs
+4. Run `04-projects/text-api`
+5. Read the traces, weekly report, and blog draft together to understand how one round of work becomes public output
+
+## Roadmap
+
+Short-term direction:
+
+1. Push `text-api` from "runnable" to "more stable"
+2. Finish the next hardening pass around logging, timeout / retry, CI, and Docker
+3. Publish ongoing weekly reports, blog posts, and postmortems as a serialized public record
+4. Add more example projects so the repository becomes a series instead of a single example
+
+## Who This Is For
+
+This repository is a good fit for people who:
+
+- are starting AI application development and want an engineering-first path
+- can code a bit but lack a repeatable training system
+- want to turn learning into a portfolio, blog series, and open-source work
+- want to learn how to turn a small project into a public project with evidence
+
+This repository is not a good fit for people who:
+
+- have zero programming background and do not plan to build projects yet
+- only want conceptual material without code or documentation work
+
+## Contributing
+
+This repository is still being upgraded from a personal training repo into a more mature open-source project.
+
+Future contributions through `Issues / PRs / Discussions` are welcome, especially around:
+
+- documentation clarity
+- onboarding flow
+- reproducibility of the example project
+- how well the repository structure supports public writing and sharing
+
+Supporting open-source files such as `LICENSE`, `CONTRIBUTING`, and a clearer project board will be added as the public release setup matures.
 
 ## Core Principles
 
-- deliver first, expand later
-- build closed loops before chasing advanced ideas
-- treat AI as a collaborator, not a replacement for judgment
-- turn all learning into code, documents, and evidence
+- deliver before expanding
+- close the loop before abstracting
+- keep evidence before conclusions
+- use AI as a collaborator, not a replacement for judgment
+- preserve traces for tests, debugging, regressions, and real examples
 
-For the English documentation index, see [00-docs/en/README.md](./00-docs/en/README.md).
+

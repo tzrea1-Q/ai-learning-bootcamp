@@ -16,4 +16,4 @@ A blog post should not be a separate random task. It should come from real proje
 2. select one concrete problem on the weekend
 3. use `01-templates/en/blog/technical-blog-post-template.md`
 4. place screenshots and diagrams in `08-assets/`
-5. save the draft in `05-blog-posts/`
+5. save the draft in `05-blog-posts/04-草稿箱/`

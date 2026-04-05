@@ -1,7 +1,7 @@
-# 第 1 周工程周报
+﻿# 第 1 周工程周报
 
 ## 本周目标
-- 打通 `week01-text-api` 的最小闭环，完成 `FastAPI + MiniMax API` 的本地可运行版本。
+- 打通 `text-api` 的最小闭环，完成 `FastAPI + OpenAI 兼容 Chat Completions API` 的本地可运行版本，默认示例上游先使用 MiniMax。
 - 至少交付 3 个文本处理接口，并补齐测试、README、调试命令和基础留痕。
 - 在“能跑”基础上做一轮工程化收口，优先处理输出稳定性、错误结构、输入边界、CI 骨架和验证记录。
 
@@ -11,7 +11,7 @@
 - 补齐了自动化测试、README、接口契约、调试指南、已知问题文档、`docs/traces/` 验证记录和 `07-postmortems/` 复盘文档，并完成本周关键 commit。
 
 ## 本周最小可交付
-- 一个本地可运行、可测试、可回看留痕的 `week01-text-api` 基线版本。
+- 一个本地可运行、可测试、可回看留痕的 `text-api` 基线版本。
 - 当前最小交付包含：
   - `GET /health`
   - `POST /summarize`
@@ -40,7 +40,7 @@
 ## 测试与验证
 - 单元测试：
   - 2026-04-03：`pytest` `8 passed in 0.02s`
-  - 2026-04-04 / 2026-04-05：`pytest` `12 passed`，覆盖健康检查、MiniMax 客户端、文本接口、错误映射、输入边界和 `request_id`
+  - 2026-04-04 / 2026-04-05：`pytest` `12 passed`，覆盖健康检查、OpenAI 兼容客户端、文本接口、错误映射、输入边界和 `request_id`
 - 接口验证：
   - 本地用 `uvicorn + Invoke-RestMethod` 实测 `/health`、`/summarize`、`/key-points`、`/rewrite`
   - 已完成 `rewrite` 真实样例回归
@@ -51,7 +51,7 @@
   - 2026-04-04 首次验证时 Docker engine 未就绪，但 2026-04-05 已补跑成功：`docker compose up -d postgres`、`docker compose ps` 和 `pg_isready` 全部通过
 - 部署验证：
   - 无正式部署
-  - 已补 `.github/workflows/week01-text-api-pytest.yml` 作为第 2 周最小 CI 起点，但尚未在 GitHub 上实际跑通
+  - 已补 `.github/workflows/text-api-pytest.yml` 作为第 2 周最小 CI 起点，但尚未在 GitHub 上实际跑通
 
 ## 本周输出沉淀
 - 日报摘要：
@@ -59,17 +59,18 @@
   - [2026-4-4.md](e:\ai-learning-bootcamp\02-daily-reports\2026-4-4.md)
   - [2026-4-5.md](e:\ai-learning-bootcamp\02-daily-reports\2026-4-5.md)
 - README 更新：
-  - [README.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\README.md)
+  - [README.md](e:\ai-learning-bootcamp\04-projects\text-api\README.md)
 - 博客素材：
   - 本周已形成可直接展开的主题素材：`rewrite` 风格漂移收口、统一错误响应、traces/postmortem/CI 草稿如何做最小工程化留痕
   - 演示素材已整理到 `08-assets/week01/`，其中“接口实跑结果”和“pytest 通过结果”保留为真实截图，其余更适合直接写成文字说明
 - 方案文档：
-  - [03-接口契约.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\docs\03-接口契约.md)
-  - [04-开发测试调试指南.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\docs\04-开发测试调试指南.md)
-  - [05-已知问题与后续计划.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\docs\05-已知问题与后续计划.md)
+  - [03-接口契约.md](e:\ai-learning-bootcamp\04-projects\text-api\docs\03-接口契约.md)
+  - [04-开发测试调试指南.md](e:\ai-learning-bootcamp\04-projects\text-api\docs\04-开发测试调试指南.md)
+  - [05-已知问题与后续计划.md](e:\ai-learning-bootcamp\04-projects\text-api\docs\05-已知问题与后续计划.md)
 - 复盘记录：
   - [2026-04-minimax-think-output-leak.md](e:\ai-learning-bootcamp\07-postmortems\2026-04-minimax-think-output-leak.md)
-  - [2026-04-week01-text-api-rewrite-style-drift.md](e:\ai-learning-bootcamp\07-postmortems\2026-04-week01-text-api-rewrite-style-drift.md)
+  - 说明：这条复盘对应的是默认示例上游仍使用 MiniMax 时暴露的真实问题
+  - [2026-04-text-api-rewrite-style-drift.md](e:\ai-learning-bootcamp\07-postmortems\2026-04-text-api-rewrite-style-drift.md)
 
 ## 本周产出链接
 - GitHub：
@@ -77,25 +78,27 @@
   - 关键 commit：`d4861fd` `Stabilize text API responses and validation traces`
   - 关键 commit：`23b8a57` `Finish week01 text API hardening`
 - 演示视频：
-  - 本周未录制成片，但已准备 demo 录制脚本与截图清单：[week01-text-api-demo-script-and-shotlist-2026-04-05.md](e:\ai-learning-bootcamp\08-assets\week01\week01-text-api-demo-script-and-shotlist-2026-04-05.md)
+  - 本周未录制成片，但已准备 demo 录制脚本与截图清单：[text-api-demo-script-and-shotlist-2026-04-05.md](e:\ai-learning-bootcamp\08-assets\week01\text-api-demo-script-and-shotlist-2026-04-05.md)
 - 演示截图与文字化素材：
-  - 截图 1“项目最小闭环总览”：不单独截图，直接由 [README.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\README.md) 和本周“本周最小可交付”段落承担展示。
+  - 截图 1“项目最小闭环总览”：不单独截图，直接由 [README.md](e:\ai-learning-bootcamp\04-projects\text-api\README.md) 和本周“本周最小可交付”段落承担展示。
   - 截图 2“本地接口实跑结果”：使用真实截图 [week01-api-demo.png](e:\ai-learning-bootcamp\08-assets\week01\week01-api-demo.png)。
-  - 截图 3“rewrite 回归留痕”：不单独截图，直接引用 [06-rewrite-回归记录-2026-04-04.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\docs\traces\06-rewrite-回归记录-2026-04-04.md) 并在博客中用文字概述“问题现象 + 修正动作 + 结论”。
-  - 截图 4“统一错误响应与 request_id”：不单独截图，直接引用 [10-request-id-错误响应验证记录-2026-04-05.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\docs\traces\10-request-id-错误响应验证记录-2026-04-05.md) 并在周报/博客中用文字说明错误契约和最小链路。
+  - 截图 3“rewrite 回归留痕”：不单独截图，直接引用 [06-rewrite-回归记录-2026-04-04.md](e:\ai-learning-bootcamp\04-projects\text-api\docs\traces\06-rewrite-回归记录-2026-04-04.md) 并在博客中用文字概述“问题现象 + 修正动作 + 结论”。
+  - 截图 4“统一错误响应与 request_id”：不单独截图，直接引用 [10-request-id-错误响应验证记录-2026-04-05.md](e:\ai-learning-bootcamp\04-projects\text-api\docs\traces\10-request-id-错误响应验证记录-2026-04-05.md) 并在周报/博客中用文字说明错误契约和最小链路。
   - 截图 5“测试或 CI 骨架”：使用真实截图 [week01-pytest-or-ci.png](e:\ai-learning-bootcamp\08-assets\week01\week01-pytest-or-ci.png)。
 - 线上地址：
   - 无
 - 相关文档：
-  - [06-rewrite-回归记录-2026-04-04.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\docs\traces\06-rewrite-回归记录-2026-04-04.md)
-  - [07-统一错误响应验证记录-2026-04-04.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\docs\traces\07-统一错误响应验证记录-2026-04-04.md)
-  - [08-docker-postgres-验证记录-2026-04-04.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\docs\traces\08-docker-postgres-验证记录-2026-04-04.md)
-  - [09-ci-与输入边界验证记录-2026-04-04.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\docs\traces\09-ci-与输入边界验证记录-2026-04-04.md)
-  - [10-request-id-错误响应验证记录-2026-04-05.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\docs\traces\10-request-id-错误响应验证记录-2026-04-05.md)
-  - [11-docker-postgres-验证尝试记录-2026-04-05.md](e:\ai-learning-bootcamp\04-projects\week01-text-api\docs\traces\11-docker-postgres-验证尝试记录-2026-04-05.md)
+  - [06-rewrite-回归记录-2026-04-04.md](e:\ai-learning-bootcamp\04-projects\text-api\docs\traces\06-rewrite-回归记录-2026-04-04.md)
+  - [07-统一错误响应验证记录-2026-04-04.md](e:\ai-learning-bootcamp\04-projects\text-api\docs\traces\07-统一错误响应验证记录-2026-04-04.md)
+  - [08-docker-postgres-验证记录-2026-04-04.md](e:\ai-learning-bootcamp\04-projects\text-api\docs\traces\08-docker-postgres-验证记录-2026-04-04.md)
+  - [09-ci-与输入边界验证记录-2026-04-04.md](e:\ai-learning-bootcamp\04-projects\text-api\docs\traces\09-ci-与输入边界验证记录-2026-04-04.md)
+  - [10-request-id-错误响应验证记录-2026-04-05.md](e:\ai-learning-bootcamp\04-projects\text-api\docs\traces\10-request-id-错误响应验证记录-2026-04-05.md)
+  - [11-docker-postgres-验证尝试记录-2026-04-05.md](e:\ai-learning-bootcamp\04-projects\text-api\docs\traces\11-docker-postgres-验证尝试记录-2026-04-05.md)
 
 ## 下周最小可交付
 - 明确是否把 `422` 纳入统一错误响应层，并写出清晰决策说明。
 - 把 `request_id` 从最小错误链路继续下沉到更完整的日志链路，至少补请求开始/结束或异常日志的一致关联。
-- 让 `.github/workflows/week01-text-api-pytest.yml` 在 GitHub 上实际跑通，补一次真实 CI 成功记录。
+- 让 `.github/workflows/text-api-pytest.yml` 在 GitHub 上实际跑通，补一次真实 CI 成功记录。
 - 如果 Docker 环境恢复可用，重新执行 `docker compose up -d postgres`、`docker compose ps` 和 `pg_isready`，补一份真实成功验证记录。
+
+
