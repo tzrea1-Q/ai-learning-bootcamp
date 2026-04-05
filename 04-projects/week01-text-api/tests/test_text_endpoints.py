@@ -9,11 +9,22 @@
 6. 上游配置错误和上游异常的暴露方式。
 """
 
+from uuid import UUID
+
 from requests import RequestException
 
 from fastapi.testclient import TestClient
 
 from app import main
+
+
+def assert_has_request_id(payload: dict) -> None:
+    """确保统一错误响应里带有可解析的 request_id。"""
+
+    request_id = payload.get("request_id")
+    assert isinstance(request_id, str)
+    assert request_id
+    assert str(UUID(request_id)) == request_id
 
 
 def test_summarize_returns_cleaned_result(monkeypatch, client: TestClient) -> None:
@@ -155,10 +166,15 @@ def test_text_endpoints_surface_upstream_errors(monkeypatch, client: TestClient)
     response = client.post("/key-points", json={"text": "需要提炼的信息"})
 
     assert response.status_code == 500
-    assert response.json() == {
+    assert response.headers["X-Request-ID"]
+    payload = response.json()
+    assert_has_request_id(payload)
+    assert response.headers["X-Request-ID"] == payload["request_id"]
+    assert payload == {
         "code": "SERVER_MISCONFIGURED",
         "message": "Local service configuration is invalid",
         "detail": "MINIMAX_API_KEY is not set",
+        "request_id": payload["request_id"],
     }
 
 
@@ -173,10 +189,15 @@ def test_text_endpoints_return_unified_502_on_request_failure(monkeypatch, clien
     response = client.post("/summarize", json={"text": "需要总结的信息"})
 
     assert response.status_code == 502
-    assert response.json() == {
+    assert response.headers["X-Request-ID"]
+    payload = response.json()
+    assert_has_request_id(payload)
+    assert response.headers["X-Request-ID"] == payload["request_id"]
+    assert payload == {
         "code": "UPSTREAM_REQUEST_FAILED",
         "message": "MiniMax request failed",
         "detail": "request timed out",
+        "request_id": payload["request_id"],
     }
 
 
@@ -191,8 +212,13 @@ def test_text_endpoints_return_unified_502_on_invalid_response(monkeypatch, clie
     response = client.post("/key-points", json={"text": "需要提炼的信息"})
 
     assert response.status_code == 502
-    assert response.json() == {
+    assert response.headers["X-Request-ID"]
+    payload = response.json()
+    assert_has_request_id(payload)
+    assert response.headers["X-Request-ID"] == payload["request_id"]
+    assert payload == {
         "code": "UPSTREAM_INVALID_RESPONSE",
         "message": "MiniMax returned an unexpected response",
         "detail": "choices[0].message.content is missing or malformed",
+        "request_id": payload["request_id"],
     }
