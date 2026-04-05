@@ -1,4 +1,4 @@
-# Getting Started
+﻿# Getting Started
 
 If today is your first day in this repository, do not browse randomly. Follow this order.
 
@@ -65,7 +65,7 @@ Read:
 - `00-docs/en/01-training-track/03-12-week-plan.md`
 - `00-docs/en/04-project-system/00-project-map.md`
 
-Then start from `04-projects/week01-text-api` or your own week-one project.
+Then start from `04-projects/text-api` or your own week-one project.
 
 ## Step 6: Start Publishing Output
 
@@ -75,3 +75,4 @@ After your first week, begin using:
 - `01-templates/en/blog/technical-blog-post-template.md`
 - `01-templates/en/project/solution-document-template.md`
 - `01-templates/en/postmortem/postmortem-template.md`
+

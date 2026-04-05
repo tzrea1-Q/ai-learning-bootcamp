@@ -2,90 +2,104 @@
 
 [中文](./README.md) | `English`
 
-This repository is an open-source training system for beginners who want to learn AI application development in a practical, engineering-focused way.
+An open-source training repository that turns AI learning, project delivery, engineering evidence, and public writing into one workflow.
 
-It is not just a collection of notes. It is designed to help learners gradually build the ability to:
+This is not just a note dump. It is an execution system: you are expected to build runnable projects, then turn each iteration into READMEs, solution docs, test traces, weekly reports, blog posts, and postmortems.
 
-- set up an AI development environment
-- plan daily learning and execution
-- write daily reports and weekly reports
-- turn project work into blog posts and public output
-- build and deliver AI projects
-- write solution docs, READMEs, retrospectives, and case studies
+## Entry Rules
 
-## Who This Is For
+- Root `README.md`: the repository-level entry point
+- Subdirectory `README.md` files: local indexes only, not replacements for the root entry point
+- Project facts that change frequently: keep them in project README files, project issue/planning docs, weekly reports, and trace records instead of repeating them at multiple levels
 
-This repository is a good fit for people who:
+## What This Repository Is
 
-- are new to AI development and want a structured path
-- know some Python or web development but lack engineering discipline
-- can use AI tools but cannot yet integrate them into a delivery workflow
-- want to turn their learning process into a public portfolio
+- Built for people with some `Python / Web` background who want to enter AI application development systematically
+- Focused on delivery discipline: ship first, expand later
+- Designed to produce both runnable projects and public-facing portfolio assets
+- Structured to support three things at once: training, project execution, and blog serialization
 
-It is not a good fit for someone with zero programming background who only wants conceptual overviews.
+## Best Entry Points
 
-## What You Will Build
+If this is your first visit, start here:
 
-By following this training system, you should gradually accumulate:
+1. Repository orientation
+   - [00-docs/en/README.md](./00-docs/en/README.md)
+   - [00-docs/en/00-navigation/00-what-this-project-is.md](./00-docs/en/00-navigation/00-what-this-project-is.md)
+   - [00-docs/en/00-navigation/01-getting-started.md](./00-docs/en/00-navigation/01-getting-started.md)
+2. The first real project
+   - [04-projects/text-api/README.md](./04-projects/text-api/README.md)
+   - [04-projects/text-api/ENVIRONMENT.md](./04-projects/text-api/ENVIRONMENT.md)
+   - [04-projects/text-api/docs/README.md](./04-projects/text-api/docs/README.md)
+3. The latest delivery and planning documents
+   - [03-weekly-reports/week-01-report.md](./03-weekly-reports/week-01-report.md)
+   - [06-solution-docs/week-02-text-api-最小可交付拆解.md](./06-solution-docs/week-02-text-api-最小可交付拆解.md)
+4. Public-output material
+   - [05-blog-posts/02-专栏总览/2026-04-把-ai-开发练成真本事.md](./05-blog-posts/02-专栏总览/2026-04-把-ai-开发练成真本事.md)
+   - [05-blog-posts/03-正式文章/01-把一个最小 LLM 文本 API 做出工程感：text-api 和第一轮收口.md](./05-blog-posts/03-正式文章/01-把一个最小%20LLM%20文本%20API%20做出工程感：text-api%20和第一轮收口.md)
+   - [07-postmortems/2026-04-minimax-think-output-leak.md](./07-postmortems/2026-04-minimax-think-output-leak.md)
 
-1. runnable AI projects
-2. daily and weekly execution records
-3. blog drafts and technical articles
-4. solution docs and architecture notes
-5. README, case study, and postmortem documents
-6. portfolio-ready assets
+## Current Public Example
 
-## Start Here
+### `text-api`
 
-If this is your first time in the repository, follow this order:
+This is the first baseline project in the repository. It is the current public example used to connect runnable code, engineering docs, weekly delivery records, blog drafts, and postmortems into one repeatable workflow.
 
-1. Read [00-docs/en/00-navigation/00-what-this-project-is.md](./00-docs/en/00-navigation/00-what-this-project-is.md)
-2. Read [00-docs/en/00-navigation/01-getting-started.md](./00-docs/en/00-navigation/01-getting-started.md)
-3. Continue with [00-docs/en/01-training-track/00-learning-overview.md](./00-docs/en/01-training-track/00-learning-overview.md)
-4. Set up your environment with [00-docs/en/01-training-track/07-environment-setup-guide.md](./00-docs/en/01-training-track/07-environment-setup-guide.md)
-5. Use the English templates in [01-templates/en](./01-templates/en/)
+Related links:
+
+- Project README: [04-projects/text-api/README.md](./04-projects/text-api/README.md)
+- Environment and startup: [04-projects/text-api/ENVIRONMENT.md](./04-projects/text-api/ENVIRONMENT.md)
+- Project docs index: [04-projects/text-api/docs/README.md](./04-projects/text-api/docs/README.md)
+- Week 1 report: [03-weekly-reports/week-01-report.md](./03-weekly-reports/week-01-report.md)
+- Week 2 plan: [06-solution-docs/week-02-text-api-最小可交付拆解.md](./06-solution-docs/week-02-text-api-最小可交付拆解.md)
+- Article: [05-blog-posts/03-正式文章/01-把一个最小 LLM 文本 API 做出工程感：text-api 和第一轮收口.md](./05-blog-posts/03-正式文章/01-把一个最小%20LLM%20文本%20API%20做出工程感：text-api%20和第一轮收口.md)
 
 ## Repository Structure
 
 ```text
 ai-learning-bootcamp/
-├─ 00-docs/               # methodology, navigation, training track, execution, output, project system
-├─ 01-templates/          # reusable templates
+├─ 00-docs/               # navigation, training track, execution, output, project system
+├─ 01-templates/          # reusable templates for reports, blog posts, READMEs, docs
 ├─ 02-daily-reports/      # daily execution records
 ├─ 03-weekly-reports/     # weekly reports
-├─ 04-projects/           # actual projects
+├─ 04-projects/           # project code and project-level docs
 ├─ 05-blog-posts/         # blog drafts and published articles
-├─ 06-solution-docs/      # solution docs and architecture notes
-├─ 07-postmortems/        # failure reviews
-├─ 08-assets/             # screenshots, videos, diagrams, demos
-└─ 09-archive/            # archived content
+├─ 06-solution-docs/      # planning docs, solution docs, design notes
+├─ 07-postmortems/        # failure reviews and postmortems
+├─ 08-assets/             # screenshots, demo scripts, recordings
+└─ 09-archive/            # archived materials
 ```
 
-## Recommended Execution Loop
+## How This Repository Works
 
-Every day:
+The main difference between this repository and a typical learning repo is that every iteration is expected to leave behind a full evidence chain.
 
-- write the daily plan first
-- build, test, and record problems
-- complete the daily report at night
+A minimal closed loop here includes:
 
-Every week:
+- code and runnable results
+- tests and verification records
+- README, solution docs, and debugging notes
+- weekly reports, blog drafts, and postmortems
+- screenshots, scripts, or other reusable showcase assets
 
-- turn daily reports into a weekly report
-- produce at least one blog draft
-- update a project README or solution document
-- record a demo or collect screenshots
-- write at least one postmortem or risk note
+In other words, engineering delivery and content output are treated as part of the same workflow.
 
-## Example Project
+## Who This Is For
 
-- [04-projects/week01-text-api/README.md](./04-projects/week01-text-api/README.md)
+- People starting AI application development with some existing development basics
+- People who need a training system, not just scattered notes
+- People who want to turn learning into projects, writing, and a public portfolio
 
-## Core Principles
+Not for:
 
-- deliver first, expand later
-- build closed loops before chasing advanced ideas
-- treat AI as a collaborator, not a replacement for judgment
-- turn all learning into code, documents, and evidence
+- People with zero programming background who do not plan to build projects yet
+- People who only want conceptual summaries without code or documentation work
 
-For the English documentation index, see [00-docs/en/README.md](./00-docs/en/README.md).
+## Participation
+
+Feedback is especially useful in these areas:
+
+- whether the documentation structure is clear
+- whether the starting path is smooth for new users
+- whether the example project is actually reproducible
+- whether the repository structure supports long-form public writing
