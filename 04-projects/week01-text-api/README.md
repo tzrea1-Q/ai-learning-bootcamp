@@ -26,6 +26,7 @@
 - `docs/traces/07-统一错误响应验证记录-2026-04-04.md`：统一错误响应格式的测试、联调和实际返回记录
 - `docs/traces/08-docker-postgres-验证记录-2026-04-04.md`：PostgreSQL Docker 骨架的配置检查与本机验证结果
 - `docs/traces/09-ci-与输入边界验证记录-2026-04-04.md`：最小 GitHub Actions 工作流草稿与输入边界约束的本地验证记录
+- `docs/traces/10-request-id-错误响应验证记录-2026-04-05.md`：`500 / 502` 错误响应补齐 `request_id` 后的测试与验证记录
 
 ## 环境变量
 
@@ -69,8 +70,9 @@ docker compose up -d postgres
 本地验证结论：
 
 - `docker compose config` 可正常解析，说明 Compose 结构和环境变量约定没有脱节
-- 当前机器上的 Docker daemon 未启动，因此 2026-04-04 这次验证未能真正把容器拉起
-- 详细记录见 `docs/traces/08-docker-postgres-验证记录-2026-04-04.md`
+- 2026-04-04 首次验证时，本机 Docker engine 未就绪，因此当时未能真正把容器拉起
+- 2026-04-05 已完成一次真实成功验证：`docker compose up -d postgres`、`docker compose ps` 和 `pg_isready` 均已跑通
+- 详细记录见 `docs/traces/08-docker-postgres-验证记录-2026-04-04.md` 和 `docs/traces/11-docker-postgres-验证尝试记录-2026-04-05.md`
 
 ## 接口说明
 
@@ -196,7 +198,7 @@ Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:8000/rewrite' `
 - 文本处理接口通过 `app/minimax_client.py` 调用 MiniMax Chat Completions。
 - 接口会清理返回内容中的 `<think>...</think>` 片段，避免把推理痕迹直接暴露给客户端。
 - `POST /rewrite` 会额外收紧输出风格：提示词明确禁止标题、解释和明显扩写；结果侧会清理常见的“改写后：”前缀和自动生成的首行标题。
-- `500 / 502` 已统一为 `code + message + detail` 错误结构，便于前端、测试和日志做稳定判断。
+- `500 / 502` 已统一为 `code + message + detail + request_id` 错误结构，并通过 `X-Request-ID` 响应头回传同一个值，便于前端、测试和日志做最小链路串联。
 - MiniMax 请求发出前、成功后和失败时都会留下最小日志，便于排查 URL、模型名、状态码和异常信息。
 
 ## 已记录失败案例
@@ -206,5 +208,5 @@ Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:8000/rewrite' `
 
 ## 下一步
 
-- 补日志与请求级 trace 信息
+- 评估是否把 `422` 也纳入统一错误响应层
 - 引入数据库记录请求历史

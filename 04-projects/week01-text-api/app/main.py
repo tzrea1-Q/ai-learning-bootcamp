@@ -7,7 +7,9 @@
 4. 把内部异常转换成对客户端可理解的 HTTP 错误。
 """
 
+import logging
 import re
+from uuid import uuid4
 from typing import Literal
 
 from fastapi import FastAPI, Request
@@ -27,6 +29,8 @@ THINK_BLOCK_RE = re.compile(r"<think>.*?</think>\s*", re.DOTALL)
 REWRITE_LABEL_RE = re.compile(r"^(改写后|优化后|润色后|重写后)[：:]\s*")
 
 app = FastAPI(title="Week01 Text API")
+REQUEST_ID_HEADER = "X-Request-ID"
+LOGGER = logging.getLogger(__name__)
 
 
 class TextTaskRequest(BaseModel):
@@ -73,6 +77,7 @@ class ErrorResponse(BaseModel):
     code: str
     message: str
     detail: str
+    request_id: str
 
 
 class ApiError(Exception):
@@ -96,6 +101,18 @@ COMMON_ERROR_RESPONSES = {
         "description": "上游 MiniMax 请求失败或返回结构不符合预期",
     },
 }
+
+
+def _ensure_request_id(request: Request) -> str:
+    """Return the current request id, generating one if the request has none yet."""
+
+    request_id = getattr(request.state, "request_id", None)
+    if request_id:
+        return request_id
+
+    request_id = request.headers.get(REQUEST_ID_HEADER) or str(uuid4())
+    request.state.request_id = request_id
+    return request_id
 
 
 def _build_payload(task: Literal["summarize", "key-points", "rewrite"], text: str) -> dict:
@@ -255,11 +272,39 @@ def _run_text_task(task: Literal["summarize", "key-points", "rewrite"], text: st
 
 
 @app.exception_handler(ApiError)
-async def handle_api_error(_request: Request, exc: ApiError) -> JSONResponse:
+async def handle_api_error(request: Request, exc: ApiError) -> JSONResponse:
     """把内部统一错误对象转换成稳定的 JSON 错误响应。"""
 
-    payload = ErrorResponse(code=exc.code, message=exc.message, detail=exc.detail)
-    return JSONResponse(status_code=exc.status_code, content=payload.model_dump())
+    request_id = _ensure_request_id(request)
+    payload = ErrorResponse(
+        code=exc.code,
+        message=exc.message,
+        detail=exc.detail,
+        request_id=request_id,
+    )
+    LOGGER.warning(
+        "API error response: request_id=%s path=%s status_code=%s code=%s detail=%s",
+        request_id,
+        request.url.path,
+        exc.status_code,
+        exc.code,
+        exc.detail,
+    )
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=payload.model_dump(),
+        headers={REQUEST_ID_HEADER: request_id},
+    )
+
+
+@app.middleware("http")
+async def attach_request_id(request: Request, call_next):
+    """Attach a stable request id to the current request/response lifecycle."""
+
+    request_id = _ensure_request_id(request)
+    response = await call_next(request)
+    response.headers.setdefault(REQUEST_ID_HEADER, request_id)
+    return response
 
 
 @app.get("/health")
