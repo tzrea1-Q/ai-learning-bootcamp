@@ -1,4 +1,4 @@
-﻿# 博客工作区
+# 博客工作区
 
 这里不是单纯的“博客文件夹”，而是整套博客连载的工作区。
 
@@ -11,13 +11,16 @@
 - 选题池
 - 给 Codex / Agent 使用的唯一入口文件
 
-## 唯一入口
+## 角色边界
+
+- `00-博客Agent入口.md`
+  - 博客写作的唯一工作入口
+- `README.md`
+  - 只做目录索引，不再重复维护命名规则、写作流程和输出位置规则
 
 后续如果要让 Codex 或其他 Agent 总结每周内容并写博客，只需要让它先读取：
 
 - [00-博客Agent入口.md](https://github.com/tzrea1-Q/ai-learning-bootcamp/blob/main/05-blog-posts/00-%E5%8D%9A%E5%AE%A2Agent%E5%85%A5%E5%8F%A3.md)
-
-这是博客写作的唯一入口文件。
 
 ## 目录结构
 
@@ -40,19 +43,4 @@
 - 草稿：
   - [2026-04-text-api-从能跑到像样的工程化收口.md](https://github.com/tzrea1-Q/ai-learning-bootcamp/blob/main/05-blog-posts/04-%E8%8D%89%E7%A8%BF%E7%AE%B1/2026-04-text-api-%E4%BB%8E%E8%83%BD%E8%B7%91%E5%88%B0%E5%83%8F%E6%A0%B7%E7%9A%84%E5%B7%A5%E7%A8%8B%E5%8C%96%E6%94%B6%E5%8F%A3.md)
 
-## 命名规则
-
-- 正式文章 / 草稿：
-  - `YYYY-MM-主题名.md`
-- 入口和规则文件：
-  - 用 `00-` 或目录名表达固定角色，不混入普通文章
-
-## 推荐工作流
-
-1. 先读 [00-博客Agent入口.md](https://github.com/tzrea1-Q/ai-learning-bootcamp/blob/main/05-blog-posts/00-%E5%8D%9A%E5%AE%A2Agent%E5%85%A5%E5%8F%A3.md)
-2. 再读 [项目连载博客写作风格规范.md](https://github.com/tzrea1-Q/ai-learning-bootcamp/blob/main/05-blog-posts/01-%E5%86%99%E4%BD%9C%E8%A7%84%E5%88%99/%E9%A1%B9%E7%9B%AE%E8%BF%9E%E8%BD%BD%E5%8D%9A%E5%AE%A2%E5%86%99%E4%BD%9C%E9%A3%8E%E6%A0%BC%E8%A7%84%E8%8C%83.md)
-3. 从周报、日报、`docs/traces/`、方案文档、postmortem 里抽题
-4. 草稿先写到 `04-草稿箱/`
-5. 定稿后移动到 `03-正式文章/`
-6. 暂时不写的选题丢进 `05-选题池/`
-
+命名规则、写作流程和输出位置规则统一见 `00-博客Agent入口.md`。

@@ -23,47 +23,20 @@
 
 ### 2. 运行前提
 
-这个项目要跑起来，前提其实很少：
+这个项目要跑起来，前提其实不复杂。真正关键的不是环境项多不多，而是有没有一个单一可信的环境入口。
 
-- 本地 Python 3.14
-- 一个虚拟环境 `.venv`
-- 一份可用的上游兼容接口 API Key
-- 一组最小环境变量
+现在仓库已经把 `.env` 模板、变量说明、启动命令和 agent 约定统一收口到 [ENVIRONMENT.md](https://github.com/tzrea1-Q/ai-learning-bootcamp/blob/main/04-projects/text-api/ENVIRONMENT.md)。正文里只保留两个和本文相关的结论：
 
-环境变量目前只要求下面 5 个：
+1. 第 1 周主流程真正依赖的核心变量是 `UPSTREAM_API_KEY`、`UPSTREAM_BASE_URL` 和 `UPSTREAM_MODEL`
+2. 当前默认示例仍使用 MiniMax 兼容端点，但代码边界已经按 OpenAI 兼容接口抽象，不再绑定单一供应商
 
-```env
-UPSTREAM_API_KEY=your_api_key_here
-UPSTREAM_BASE_URL=https://api.minimaxi.com/v1
-UPSTREAM_MODEL=MiniMax-M2.7
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ai_bootcamp
-APP_ENV=dev
-LOG_LEVEL=INFO
-```
-
-其中真正影响第 1 周主流程的主要是前三个：
+其中真正影响第 1 周主流程的主要是前三项：
 
 - `UPSTREAM_API_KEY`：决定上游调用是否能通过鉴权
 - `UPSTREAM_BASE_URL`：决定请求最终打到哪里
 - `UPSTREAM_MODEL`：决定默认示例使用哪个兼容模型标识
 
 `DATABASE_URL` 在当前阶段还只是为后续数据库接入预留，`APP_ENV` 和 `LOG_LEVEL` 则分别用于环境标识和最小日志控制。这里继续使用 MiniMax 作为示例值，只是因为第 1 周真实联调是基于这组默认配置完成的；当前代码边界已经按 OpenAI 兼容接口抽象，不再绑定单一供应商。
-
-本地启动方式也很直接：
-
-```powershell
-cd 04-projects/text-api
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-Copy-Item .env.example .env
-uvicorn app.main:app --reload
-```
-
-服务启动后，最先可访问的是：
-
-- `http://127.0.0.1:8000/health`
-- `http://127.0.0.1:8000/docs`
 
 也就是说，这个项目在环境层面并不复杂，复杂度主要不在“怎么跑起来”，而在“跑起来以后怎样把接口收稳”。
 
@@ -138,7 +111,11 @@ Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:8000/summarize' `
   -Body '{"text":"FastAPI 是一个现代、高性能的 Python Web 框架，适合快速构建 API。"}'
 ```
 
-这一层内容在仓库文档里也有，但这里只保留最关键的运行前提和调用路径，避免正文把核心背景外包给 README。更完整的补充材料见：
+更完整的环境与启动说明见：
+
+- [ENVIRONMENT.md](https://github.com/tzrea1-Q/ai-learning-bootcamp/blob/main/04-projects/text-api/ENVIRONMENT.md)
+
+更完整的项目补充材料见：
 
 - [README.md](https://github.com/tzrea1-Q/ai-learning-bootcamp/blob/main/04-projects/text-api/README.md)
 - [04-开发测试调试指南.md](https://github.com/tzrea1-Q/ai-learning-bootcamp/blob/main/04-projects/text-api/docs/04-%E5%BC%80%E5%8F%91%E6%B5%8B%E8%AF%95%E8%B0%83%E8%AF%95%E6%8C%87%E5%8D%97.md)
