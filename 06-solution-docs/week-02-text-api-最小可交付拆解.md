@@ -143,7 +143,7 @@
 - README：
   - [README.md](e:\ai-learning-bootcamp\04-projects\text-api\README.md)
 - 任务清单：
-  - [2026-4-5.md](e:\ai-learning-bootcamp\02-daily-reports\2026-4-5.md)
+  - [2026-04-05.md](e:\ai-learning-bootcamp\02-daily-reports\2026-04-05.md)
   - [week-01-report.md](e:\ai-learning-bootcamp\03-weekly-reports\week-01-report.md)
 - 原始留痕：
   - [07-统一错误响应验证记录-2026-04-04.md](e:\ai-learning-bootcamp\04-projects\text-api\docs\traces\07-统一错误响应验证记录-2026-04-04.md)
