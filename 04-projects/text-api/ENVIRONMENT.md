@@ -24,6 +24,8 @@ Copy-Item .env.example .env
 UPSTREAM_API_KEY=your_real_api_key
 UPSTREAM_BASE_URL=https://api.minimaxi.com/v1
 UPSTREAM_MODEL=MiniMax-M2.7
+UPSTREAM_TIMEOUT_SECONDS=60
+UPSTREAM_RETRY_ATTEMPTS=1
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ai_bootcamp
 APP_ENV=dev
 LOG_LEVEL=INFO
@@ -57,6 +59,8 @@ uvicorn app.main:app --reload
 | `UPSTREAM_API_KEY` | 是 | `sk-...` | 上游 OpenAI 兼容接口的 API Key |
 | `UPSTREAM_BASE_URL` | 是 | `https://api.minimaxi.com/v1` | 上游兼容接口基础地址 |
 | `UPSTREAM_MODEL` | 建议显式配置 | `MiniMax-M2.7` | 调用的模型名；不配时当前默认回落到 `MiniMax-M2.7` |
+| `UPSTREAM_TIMEOUT_SECONDS` | 否 | `60` | 上游兼容请求超时时间，当前默认 `60` 秒，必须是正数 |
+| `UPSTREAM_RETRY_ATTEMPTS` | 否 | `1` | 瞬时网络错误的最大重试次数，当前只对连接失败和超时生效，必须是非负整数 |
 | `DATABASE_URL` | 否 | `postgresql://postgres:postgres@localhost:5432/ai_bootcamp` | 预留给后续数据库接入 |
 | `APP_ENV` | 否 | `dev` | 运行环境标记，当前主要用于环境识别 |
 | `LOG_LEVEL` | 否 | `INFO` | 控制最小日志级别 |
@@ -88,6 +92,8 @@ uvicorn app.main:app --reload
 UPSTREAM_API_KEY=replace_with_real_key
 UPSTREAM_BASE_URL=replace_with_openai_compatible_base_url
 UPSTREAM_MODEL=replace_with_model_name
+UPSTREAM_TIMEOUT_SECONDS=60
+UPSTREAM_RETRY_ATTEMPTS=1
 
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ai_bootcamp
 APP_ENV=dev
@@ -136,6 +142,7 @@ Invoke-RestMethod -Method Get -Uri 'http://127.0.0.1:8000/health'
 - `DATABASE_URL` 目前还没接进主流程，不要把接口故障误判成数据库问题
 - `APP_ENV` 现在不是功能开关，改它不会改变接口行为
 - 如果日志太少，优先提高 `LOG_LEVEL`，不要先去改业务逻辑
+- 当前只做保守的有限重试实验：默认最多重试 1 次，而且只对连接失败和超时生效；不要误以为所有 `502` 或所有上游错误都会自动重试
 
 ## 7. 相关文件
 

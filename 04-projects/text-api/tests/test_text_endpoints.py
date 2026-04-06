@@ -9,6 +9,7 @@
 6. 上游配置错误和上游异常的暴露方式。
 """
 
+import logging
 from uuid import UUID
 
 from requests import RequestException
@@ -30,7 +31,7 @@ def assert_has_request_id(payload: dict) -> None:
 def test_summarize_returns_cleaned_result(monkeypatch, client: TestClient) -> None:
     """确认总结接口会清理 `<think>` 片段并返回统一响应结构。"""
 
-    def fake_chat_completion(payload: dict) -> dict:
+    def fake_chat_completion(payload: dict, **kwargs) -> dict:
         # 这里先校验 payload 是否按预期构造。
         # 如果 prompt 或 model 被误改，这个测试会第一时间失败。
         assert payload["model"] == main.MODEL_NAME
@@ -61,7 +62,7 @@ def test_summarize_returns_cleaned_result(monkeypatch, client: TestClient) -> No
 def test_key_points_returns_bullets(monkeypatch, client: TestClient) -> None:
     """确认要点提取接口能返回列表风格的结果。"""
 
-    def fake_chat_completion(payload: dict) -> dict:
+    def fake_chat_completion(payload: dict, **kwargs) -> dict:
         # 这里检查的是“任务语义”而不是完整 prompt 文本，
         # 这样既能保证方向正确，也不会让测试对文案细节过度脆弱。
         assert "关键要点" in payload["messages"][1]["content"]
@@ -87,7 +88,7 @@ def test_key_points_returns_bullets(monkeypatch, client: TestClient) -> None:
 def test_rewrite_returns_polished_text(monkeypatch, client: TestClient) -> None:
     """确认改写接口能返回一段更自然的重写文本。"""
 
-    def fake_chat_completion(payload: dict) -> dict:
+    def fake_chat_completion(payload: dict, **kwargs) -> dict:
         # 这里检查 prompt 已切到“改写”任务，避免错误复用其他接口的模板。
         assert "改写下面内容" in payload["messages"][1]["content"]
         assert "不要添加标题" in payload["messages"][1]["content"]
@@ -117,7 +118,7 @@ def test_rewrite_returns_polished_text(monkeypatch, client: TestClient) -> None:
 def test_rewrite_strips_heading_and_leading_label(monkeypatch, client: TestClient) -> None:
     """确认 rewrite 输出会去掉自动标题和“改写后”之类的前缀。"""
 
-    def fake_chat_completion(payload: dict) -> dict:
+    def fake_chat_completion(payload: dict, **kwargs) -> dict:
         return {
             "choices": [
                 {
@@ -154,10 +155,64 @@ def test_text_endpoints_reject_overlong_text(client: TestClient) -> None:
     assert "at most" in response.text
 
 
+def test_request_logging_covers_start_and_completion(monkeypatch, client: TestClient, caplog) -> None:
+    """确认请求入口和成功完成都会留下带 request_id 的最小日志。"""
+
+    def fake_chat_completion(payload: dict, **kwargs) -> dict:
+        assert kwargs["request_id"] == "req-log-123"
+        assert kwargs["path"] == "/summarize"
+        assert kwargs["task"] == "summarize"
+        return {
+            "choices": [
+                {
+                    "message": {
+                        "content": "这是带日志链路的总结结果。",
+                    }
+                }
+            ]
+        }
+
+    monkeypatch.setattr(main, "chat_completion", fake_chat_completion)
+
+    with caplog.at_level(logging.INFO):
+        response = client.post(
+            "/summarize",
+            json={"text": "需要验证请求日志的文本。"},
+            headers={"X-Request-ID": "req-log-123"},
+        )
+
+    assert response.status_code == 200
+    assert "Request started: request_id=req-log-123 method=POST path=/summarize task=summarize" in caplog.text
+    assert "Request completed: request_id=req-log-123 method=POST path=/summarize task=summarize status_code=200" in caplog.text
+    assert "elapsed_ms=" in caplog.text
+
+
+def test_request_logging_covers_error_completion(monkeypatch, client: TestClient, caplog) -> None:
+    """确认失败请求也会留下完成日志，并保留同一个 request_id。"""
+
+    def fake_chat_completion(payload: dict, **kwargs) -> dict:
+        assert kwargs["request_id"] == "req-log-502"
+        raise RequestException("request timed out")
+
+    monkeypatch.setattr(main, "chat_completion", fake_chat_completion)
+
+    with caplog.at_level(logging.INFO):
+        response = client.post(
+            "/summarize",
+            json={"text": "需要触发错误路径的文本。"},
+            headers={"X-Request-ID": "req-log-502"},
+        )
+
+    assert response.status_code == 502
+    assert "Request started: request_id=req-log-502 method=POST path=/summarize task=summarize" in caplog.text
+    assert "API error response: request_id=req-log-502 path=/summarize status_code=502" in caplog.text
+    assert "Request completed: request_id=req-log-502 method=POST path=/summarize task=summarize status_code=502" in caplog.text
+
+
 def test_text_endpoints_surface_upstream_errors(monkeypatch, client: TestClient) -> None:
     """确认上游配置错误会被转换成统一的 500 错误结构。"""
 
-    def fake_chat_completion(payload: dict) -> dict:
+    def fake_chat_completion(payload: dict, **kwargs) -> dict:
         # 模拟本地配置缺失等非网络类错误。
         raise ValueError("UPSTREAM_API_KEY is not set")
 
@@ -181,7 +236,7 @@ def test_text_endpoints_surface_upstream_errors(monkeypatch, client: TestClient)
 def test_text_endpoints_return_unified_502_on_request_failure(monkeypatch, client: TestClient) -> None:
     """确认 requests 层异常会被转换成统一的 502 错误结构。"""
 
-    def fake_chat_completion(payload: dict) -> dict:
+    def fake_chat_completion(payload: dict, **kwargs) -> dict:
         raise RequestException("request timed out")
 
     monkeypatch.setattr(main, "chat_completion", fake_chat_completion)
@@ -204,7 +259,7 @@ def test_text_endpoints_return_unified_502_on_request_failure(monkeypatch, clien
 def test_text_endpoints_return_unified_502_on_invalid_response(monkeypatch, client: TestClient) -> None:
     """确认上游返回结构异常时会走统一的 502 错误结构。"""
 
-    def fake_chat_completion(payload: dict) -> dict:
+    def fake_chat_completion(payload: dict, **kwargs) -> dict:
         return {"choices": []}
 
     monkeypatch.setattr(main, "chat_completion", fake_chat_completion)
