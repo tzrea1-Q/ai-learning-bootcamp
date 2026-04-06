@@ -24,7 +24,8 @@
 - `POST /key-points`
 - `POST /rewrite`
 - `500 / 502` 统一错误结构
-- 最小 `request_id` 错误链路
+- 最小 `request_id` 请求链路
+- 可配置的上游请求超时
 - OpenAI 兼容上游连通性验证脚本
 - `pytest` 自动化测试
 - PostgreSQL Docker 开发骨架与验证记录

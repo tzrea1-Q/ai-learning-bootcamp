@@ -9,6 +9,7 @@
 
 import logging
 import re
+from time import perf_counter
 from uuid import uuid4
 from typing import Literal
 
@@ -113,6 +114,15 @@ def _ensure_request_id(request: Request) -> str:
     request_id = request.headers.get(REQUEST_ID_HEADER) or str(uuid4())
     request.state.request_id = request_id
     return request_id
+
+
+def _task_name_from_path(path: str) -> str:
+    """根据请求路径推断当前任务名，用于最小请求日志。"""
+
+    normalized = path.strip("/")
+    if not normalized:
+        return "root"
+    return normalized
 
 
 def _build_payload(task: Literal["summarize", "key-points", "rewrite"], text: str) -> dict:
@@ -235,7 +245,12 @@ def _format_request_exception(exc: RequestException) -> str:
     return str(exc)
 
 
-def _run_text_task(task: Literal["summarize", "key-points", "rewrite"], text: str) -> TextTaskResponse:
+def _run_text_task(
+    task: Literal["summarize", "key-points", "rewrite"],
+    text: str,
+    request_id: str,
+    path: str,
+) -> TextTaskResponse:
     """执行一次完整的文本处理任务。
 
     调用链如下：
@@ -246,7 +261,12 @@ def _run_text_task(task: Literal["summarize", "key-points", "rewrite"], text: st
     """
 
     try:
-        response_data = chat_completion(_build_payload(task, text))
+        response_data = chat_completion(
+            _build_payload(task, text),
+            request_id=request_id,
+            path=path,
+            task=task,
+        )
     except ValueError as exc:
         # 这类错误通常是本地配置问题，比如 API Key / Base URL 未设置。
         raise ApiError(
@@ -302,8 +322,41 @@ async def attach_request_id(request: Request, call_next):
     """Attach a stable request id to the current request/response lifecycle."""
 
     request_id = _ensure_request_id(request)
-    response = await call_next(request)
+    task = _task_name_from_path(request.url.path)
+    start_time = perf_counter()
+    LOGGER.info(
+        "Request started: request_id=%s method=%s path=%s task=%s",
+        request_id,
+        request.method,
+        request.url.path,
+        task,
+    )
+
+    try:
+        response = await call_next(request)
+    except Exception:
+        elapsed_ms = round((perf_counter() - start_time) * 1000, 2)
+        LOGGER.exception(
+            "Request failed before response: request_id=%s method=%s path=%s task=%s elapsed_ms=%s",
+            request_id,
+            request.method,
+            request.url.path,
+            task,
+            elapsed_ms,
+        )
+        raise
+
     response.headers.setdefault(REQUEST_ID_HEADER, request_id)
+    elapsed_ms = round((perf_counter() - start_time) * 1000, 2)
+    LOGGER.info(
+        "Request completed: request_id=%s method=%s path=%s task=%s status_code=%s elapsed_ms=%s",
+        request_id,
+        request.method,
+        request.url.path,
+        task,
+        response.status_code,
+        elapsed_ms,
+    )
     return response
 
 
@@ -319,31 +372,31 @@ def health() -> dict[str, str]:
 
 
 @app.post("/summarize", response_model=TextTaskResponse, responses=COMMON_ERROR_RESPONSES)
-def summarize(request: TextTaskRequest) -> TextTaskResponse:
+def summarize(request: TextTaskRequest, http_request: Request) -> TextTaskResponse:
     """总结接口。
 
     输入一段原文，输出 2 到 3 句话的中文总结。
     """
 
-    return _run_text_task("summarize", request.text)
+    return _run_text_task("summarize", request.text, _ensure_request_id(http_request), http_request.url.path)
 
 
 @app.post("/key-points", response_model=TextTaskResponse, responses=COMMON_ERROR_RESPONSES)
-def key_points(request: TextTaskRequest) -> TextTaskResponse:
+def key_points(request: TextTaskRequest, http_request: Request) -> TextTaskResponse:
     """要点提取接口。
 
     输入一段原文，输出 3 到 5 个中文关键要点列表。
     """
 
-    return _run_text_task("key-points", request.text)
+    return _run_text_task("key-points", request.text, _ensure_request_id(http_request), http_request.url.path)
 
 
 @app.post("/rewrite", response_model=TextTaskResponse, responses=COMMON_ERROR_RESPONSES)
-def rewrite(request: TextTaskRequest) -> TextTaskResponse:
+def rewrite(request: TextTaskRequest, http_request: Request) -> TextTaskResponse:
     """改写接口。
 
     输入一段原文，输出一段语义不变、表达更清晰的改写文本。
     """
 
-    return _run_text_task("rewrite", request.text)
+    return _run_text_task("rewrite", request.text, _ensure_request_id(http_request), http_request.url.path)
 
