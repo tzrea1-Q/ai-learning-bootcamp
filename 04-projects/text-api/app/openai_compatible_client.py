@@ -17,10 +17,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # 从环境变量中读取 API Key、Base URL、模型名和日志级别。
-# 当前优先使用通用命名，同时兼容旧的 `MINIMAX_*` 变量，避免已有本地环境立刻失效。
-API_KEY = os.getenv("UPSTREAM_API_KEY") or os.getenv("MINIMAX_API_KEY")
-BASE_URL = os.getenv("UPSTREAM_BASE_URL") or os.getenv("MINIMAX_BASE_URL")
-DEFAULT_MODEL = os.getenv("UPSTREAM_MODEL") or os.getenv("MINIMAX_MODEL") or "MiniMax-M2.7"
+API_KEY = os.getenv("UPSTREAM_API_KEY")
+BASE_URL = os.getenv("UPSTREAM_BASE_URL")
+DEFAULT_MODEL = os.getenv("UPSTREAM_MODEL") or "MiniMax-M2.7"
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 DEFAULT_UPSTREAM_TIMEOUT_SECONDS = 60.0
 DEFAULT_UPSTREAM_RETRY_ATTEMPTS = 1
