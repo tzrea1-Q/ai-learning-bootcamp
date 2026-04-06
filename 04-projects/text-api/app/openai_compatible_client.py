@@ -23,6 +23,7 @@ BASE_URL = os.getenv("UPSTREAM_BASE_URL") or os.getenv("MINIMAX_BASE_URL")
 DEFAULT_MODEL = os.getenv("UPSTREAM_MODEL") or os.getenv("MINIMAX_MODEL") or "MiniMax-M2.7"
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 DEFAULT_UPSTREAM_TIMEOUT_SECONDS = 60.0
+DEFAULT_UPSTREAM_RETRY_ATTEMPTS = 1
 
 # 这是当前项目的最小日志初始化：
 # - 如果根 logger 还没有 handler，就按环境变量配置一个基础 handler；
@@ -115,6 +116,30 @@ def _request_timeout_seconds() -> float:
     return timeout_seconds
 
 
+def _retry_attempts() -> int:
+    """读取并校验上游请求的最大重试次数。"""
+
+    raw_retry_attempts = os.getenv("UPSTREAM_RETRY_ATTEMPTS")
+    if raw_retry_attempts is None or not raw_retry_attempts.strip():
+        return DEFAULT_UPSTREAM_RETRY_ATTEMPTS
+
+    try:
+        retry_attempts = int(raw_retry_attempts)
+    except ValueError as exc:
+        raise ValueError("UPSTREAM_RETRY_ATTEMPTS must be a non-negative integer") from exc
+
+    if retry_attempts < 0:
+        raise ValueError("UPSTREAM_RETRY_ATTEMPTS must be a non-negative integer")
+
+    return retry_attempts
+
+
+def _should_retry_request_exception(exc: requests.RequestException) -> bool:
+    """只对连接失败和超时做最小有限重试。"""
+
+    return isinstance(exc, (requests.Timeout, requests.ConnectionError)) and not isinstance(exc, requests.HTTPError)
+
+
 def chat_completion(payload: dict, request_id: str | None = None, path: str | None = None, task: str | None = None) -> dict:
     """向上游 OpenAI 兼容接口发送一次 chat completions 请求。
 
@@ -134,6 +159,7 @@ def chat_completion(payload: dict, request_id: str | None = None, path: str | No
 
     url = _chat_completions_url()
     timeout_seconds = _request_timeout_seconds()
+    retry_attempts = _retry_attempts()
     payload_summary = _payload_summary(payload)
     request_context = _normalize_request_context(request_id, path, task)
     headers = {
@@ -141,41 +167,67 @@ def chat_completion(payload: dict, request_id: str | None = None, path: str | No
         "Content-Type": "application/json",
     }
 
-    # 在请求发出前留一条最小 info 日志，帮助排查“是否真的发起了调用”。
-    LOGGER.info(
-        "Sending upstream chat completion request: request_id=%s path=%s task=%s url=%s timeout_seconds=%s payload=%s",
-        request_context["request_id"],
-        request_context["path"],
-        request_context["task"],
-        url,
-        timeout_seconds,
-        payload_summary,
-    )
+    total_attempts = retry_attempts + 1
 
-    try:
-        response = requests.post(url, headers=headers, json=payload, timeout=timeout_seconds)
-        response.raise_for_status()
-        data = response.json()
-    except requests.RequestException:
-        # 失败时记录异常堆栈和请求摘要，方便后续定位是网络问题、鉴权问题还是上游问题。
-        LOGGER.exception(
-            "Upstream chat completion request failed: request_id=%s path=%s task=%s url=%s payload=%s",
+    for attempt_index in range(total_attempts):
+        attempt_number = attempt_index + 1
+
+        # 在请求发出前留一条最小 info 日志，帮助排查“是否真的发起了调用”。
+        LOGGER.info(
+            "Sending upstream chat completion request: request_id=%s path=%s task=%s url=%s timeout_seconds=%s attempt=%s/%s payload=%s",
             request_context["request_id"],
             request_context["path"],
             request_context["task"],
             url,
+            timeout_seconds,
+            attempt_number,
+            total_attempts,
             payload_summary,
         )
-        raise
 
-    # 成功时记录最小成功信息，便于后续对照真实返回是否异常。
-    LOGGER.info(
-        "Upstream chat completion request succeeded: request_id=%s path=%s task=%s status_code=%s response_id=%s model=%s",
-        request_context["request_id"],
-        request_context["path"],
-        request_context["task"],
-        response.status_code,
-        data.get("id"),
-        data.get("model"),
-    )
-    return data
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=timeout_seconds)
+            response.raise_for_status()
+            data = response.json()
+        except requests.RequestException as exc:
+            if attempt_index < retry_attempts and _should_retry_request_exception(exc):
+                LOGGER.warning(
+                    "Retrying upstream chat completion request: request_id=%s path=%s task=%s attempt=%s/%s retryable_error=%s detail=%s",
+                    request_context["request_id"],
+                    request_context["path"],
+                    request_context["task"],
+                    attempt_number,
+                    total_attempts,
+                    exc.__class__.__name__,
+                    str(exc),
+                )
+                continue
+
+            # 失败时记录异常堆栈和请求摘要，方便后续定位是网络问题、鉴权问题还是上游问题。
+            LOGGER.exception(
+                "Upstream chat completion request failed: request_id=%s path=%s task=%s url=%s attempt=%s/%s payload=%s",
+                request_context["request_id"],
+                request_context["path"],
+                request_context["task"],
+                url,
+                attempt_number,
+                total_attempts,
+                payload_summary,
+            )
+            raise
+
+        # 成功时记录最小成功信息，便于后续对照真实返回是否异常。
+        LOGGER.info(
+            "Upstream chat completion request succeeded: request_id=%s path=%s task=%s attempt=%s/%s status_code=%s response_id=%s model=%s",
+            request_context["request_id"],
+            request_context["path"],
+            request_context["task"],
+            attempt_number,
+            total_attempts,
+            response.status_code,
+            data.get("id"),
+            data.get("model"),
+        )
+        return data
+
+    raise RuntimeError("Unreachable retry loop state")
