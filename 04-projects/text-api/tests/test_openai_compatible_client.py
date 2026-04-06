@@ -232,3 +232,22 @@ def test_chat_completion_rejects_invalid_retry_attempts(monkeypatch) -> None:
 
     with pytest.raises(ValueError, match="UPSTREAM_RETRY_ATTEMPTS must be a non-negative integer"):
         openai_compatible_client.chat_completion(payload)
+
+
+def test_chat_completion_does_not_fallback_to_legacy_env_names(monkeypatch) -> None:
+    """确认旧变量名不会再被当作有效配置读取。"""
+
+    legacy_prefix = "".join(["MINI", "MAX"])
+    monkeypatch.setenv(f"{legacy_prefix}_API_KEY", "legacy-key")
+    monkeypatch.setenv(f"{legacy_prefix}_BASE_URL", "https://legacy.example.com/v1")
+    monkeypatch.setenv(f"{legacy_prefix}_MODEL", "legacy-model")
+    monkeypatch.setattr(openai_compatible_client, "API_KEY", None)
+    monkeypatch.setattr(openai_compatible_client, "BASE_URL", None)
+
+    payload = {
+        "model": "test-model",
+        "messages": [{"role": "user", "content": "请总结这段内容"}],
+    }
+
+    with pytest.raises(ValueError, match="UPSTREAM_API_KEY is not set"):
+        openai_compatible_client.chat_completion(payload)

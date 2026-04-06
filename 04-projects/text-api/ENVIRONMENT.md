@@ -74,15 +74,15 @@ uvicorn app.main:app --reload
 
 如果你只填到 `/v1`，客户端会自动补上 `/chat/completions`。
 
-### 兼容旧变量名
+### 变量命名约定
 
-当前项目优先读取 `UPSTREAM_*`，同时兼容旧的 `MINIMAX_*`：
+当前项目只支持 `UPSTREAM_*` 命名：
 
-- `MINIMAX_API_KEY`
-- `MINIMAX_BASE_URL`
-- `MINIMAX_MODEL`
+- `UPSTREAM_API_KEY`
+- `UPSTREAM_BASE_URL`
+- `UPSTREAM_MODEL`
 
-兼容的意义只是为了不让旧本地环境立刻失效，不代表新配置还应该继续写旧名字。新配置统一使用 `UPSTREAM_*`。
+如果你本地还保留旧变量名，请直接改成以上新名字。
 
 ## 4. 推荐的 `.env` 模板
 
